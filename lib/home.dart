@@ -13,6 +13,12 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Completer<GoogleMapController> _controller = Completer();
 
+_onMapCreated(GoogleMapController googleMapController){
+   _controller.complete(googleMapController);
+
+   _controller.future;
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,13 +28,14 @@ class _HomeState extends State<Home> {
       body: Container(
         child: GoogleMap(
         mapType: MapType.normal, 
+        //mapType: MapType.none , 
+        //mapType: MapType.satellite , 
+        //mapType: MapType.hybrid , 
         initialCameraPosition: CameraPosition(
           target: LatLng(-8.822453, 13.234531),
           zoom: 16
         ),
-        onMapCreated:(GoogleMapController controller){
-          _controller.complete(controller);
-        },
+       onMapCreated: _onMapCreated,
         ),
       ) 
     );
