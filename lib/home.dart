@@ -12,6 +12,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Completer<GoogleMapController> _controller = Completer();
 
+Set<Marker> _marcadore = {};
+
 _onMapCreated(GoogleMapController googleMapController){
    _controller.complete(googleMapController);
 }
@@ -25,13 +27,61 @@ _movimentarCamera() async {
         target: LatLng(-8.822453, 13.234531),
         zoom: 16,
         tilt: 0,
-        bearing: 350
+        bearing: 30 
       ),
     )
   );
-
 }
 
+//Metodo que irá carregar os marcadores no Set<Marker>
+// e este irá carregar no marker: para o Mapa
+_carregarMarcadores(){
+
+  Set<Marker> marcadoreLocal = {};
+
+ Marker marcadorShopping = Marker(
+    markerId: MarkerId(
+      "Marcador-Shopping"),
+    position: LatLng(-8.862088, 13.216688),
+    icon: BitmapDescriptor.defaultMarkerWithHue( BitmapDescriptor.hueYellow),
+    infoWindow: InfoWindow(
+      title: "Shopping Rocha Pinto"
+    ),
+    onTap: (){
+      print("Shopping Rocha Pinto");
+    }
+  );
+
+  Marker marcadorHotel = Marker(
+    markerId: MarkerId(
+      "Marcador-Hotel"),
+      position: LatLng(-8.862459, 13.217214),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      infoWindow: InfoWindow(
+        title: "Hotel Rocha Pinto"
+      ),
+      onTap: (){
+        print("Hotel Rocha Pinto");
+      }
+    );
+
+
+  marcadoreLocal.add(marcadorShopping);
+  marcadoreLocal.add(marcadorHotel);
+
+setState(() {
+  _marcadore = marcadoreLocal;
+
+});
+ 
+}
+
+@override
+void initState() {
+  super.initState();
+  _carregarMarcadores();
+  
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,15 +95,16 @@ _movimentarCamera() async {
         ),
       body: Container(
         child: GoogleMap(
-        mapType: MapType.normal, 
+          mapType: MapType.normal, 
         //mapType: MapType.none , 
         //mapType: MapType.satellite , 
         //mapType: MapType.hybrid , 
         initialCameraPosition: CameraPosition(
-          target: LatLng(-8.822453, 13.234531),
+          target: LatLng(-8.862088, 13.216688),
           zoom: 16
         ),
        onMapCreated: _onMapCreated,
+       markers: _marcadore,
         ),
       ) 
     );
