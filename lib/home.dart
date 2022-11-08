@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -163,10 +164,41 @@ Polygon polygon1 = Polygon(
  
 }
 
+//metodo para carregar a posicao atual de quem usa o App, e tambem tem as permições
+_carregarLocalizacaoAtual() async {
+  LocationPermission permission = await Geolocator.checkPermission();
+
+  if(permission == LocationPermission.denied){
+    permission = await Geolocator.requestPermission();
+    if(permission == LocationPermission.denied){
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  if(permission == LocationPermission.deniedForever){
+    return Future.error(
+      'Location permissions are permanently denied, we cannot request permissions.');
+  }
+  else{
+
+      Position position;
+      
+       position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best );
+
+       print("LocalizaÇão atual: " + position.toString());
+
+       return position;
+  }
+
+}
+
+
 @override
 void initState() {
   super.initState();
-  _carregarMarcadores();
+//_carregarMarcadores();
+_carregarLocalizacaoAtual();
+  
   
 }
   @override
@@ -182,13 +214,13 @@ void initState() {
         ),
       body: Container(
         child: GoogleMap(
-          mapType: MapType.normal, 
+        //mapType: MapType.normal, 
         //mapType: MapType.none , 
-        //mapType: MapType.satellite , 
+         mapType: MapType.satellite , 
         //mapType: MapType.hybrid , 
         initialCameraPosition: CameraPosition(
-          target: LatLng(-8.893244, 13.185357),
-          zoom: 20
+          target: LatLng(-8.85866, 13.2234017),
+          zoom: 70
         ),
        onMapCreated: _onMapCreated,
        markers: _marcadore,
