@@ -13,6 +13,8 @@ class _HomeState extends State<Home> {
   Completer<GoogleMapController> _controller = Completer();
 
 Set<Marker> _marcadore = {};
+Set<Polygon> _polygnos = {};
+Set<Polyline> _polyline = {};
 
 _onMapCreated(GoogleMapController googleMapController){
    _controller.complete(googleMapController);
@@ -34,15 +36,16 @@ _movimentarCamera() async {
 }
 
 //Metodo que irá carregar os marcadores no Set<Marker>
-// e este irá carregar no marker: para o Mapa
+// e este irá carregar no marker: para o Mapa, e também carrega os polygons Set<Polygn>
 _carregarMarcadores(){
 
+  /*
   Set<Marker> marcadoreLocal = {};
 
  Marker marcadorShopping = Marker(
     markerId: MarkerId(
       "Marcador-Shopping"),
-    position: LatLng(-8.862088, 13.216688),
+    position: LatLng(-8.856835, 13.217624),
     icon: BitmapDescriptor.defaultMarkerWithHue( BitmapDescriptor.hueYellow),
     infoWindow: InfoWindow(
       title: "Shopping Rocha Pinto"
@@ -73,6 +76,90 @@ setState(() {
   _marcadore = marcadoreLocal;
 
 });
+*/
+
+/*
+//Criando Poligonos
+Set<Polygon> listaPolygns = {};
+
+Polygon polygon1 = Polygon(
+  polygonId: PolygonId(
+    "Polygono1"
+  ),
+  fillColor: Colors.amber,
+  strokeColor: Colors.redAccent,
+  strokeWidth: 5,
+  points: [
+    LatLng(-8.856835, 13.217624),
+    LatLng(-8.857101, 13.217487),
+    LatLng(-8.856788, 13.217296)
+  ],
+  consumeTapEvents: true,
+  onTap: (){
+    print("Click no Polygon1");
+  },
+  zIndex: 1
+  );
+
+  Polygon polygon2 = Polygon(
+  polygonId: PolygonId(
+    "Polygono2"
+  ),
+  fillColor: Colors.green,
+  strokeColor: Colors.blueAccent,
+  strokeWidth: 5,
+  points: [
+    LatLng(-8.857054, 13.217356),
+    LatLng(-8.856727, 13.217299),
+    LatLng(-8.857034, 13.217703)
+  ],
+  consumeTapEvents: true,
+  onTap: (){
+    print("Click no Polygon2");
+  },
+  zIndex: 0
+  );
+
+  listaPolygns.add(polygon1);
+  listaPolygns.add(polygon2);
+
+  setState(() {
+   _polygnos = listaPolygns;
+  });
+
+  */
+
+ //Criando Polyliness
+  Set<Polyline> listaPolyline = {};
+
+  Polyline polyline1 = Polyline(
+      polylineId:PolylineId(
+        "Polyline1"
+      ),
+      color: Colors.green,
+      width: 9,
+      points: [
+        LatLng(-8.893244, 13.185357),
+        LatLng(-8.892308, 13.185464),
+        LatLng(-8.891895, 13.183986),
+        LatLng(-8.889115, 13.184608),
+        LatLng(-8.888964, 13.184233),
+        LatLng(-8.888407, 13.184383)
+      ],
+      endCap: Cap.roundCap,
+      startCap: Cap.roundCap,
+      jointType: JointType.mitered,
+      consumeTapEvents: true,
+      onTap: (){
+        print("Click Polyline 1");
+      }
+    );
+
+    listaPolyline.add(polyline1);
+    
+    setState(() {
+      _polyline = listaPolyline;
+    });
  
 }
 
@@ -100,11 +187,13 @@ void initState() {
         //mapType: MapType.satellite , 
         //mapType: MapType.hybrid , 
         initialCameraPosition: CameraPosition(
-          target: LatLng(-8.862088, 13.216688),
-          zoom: 16
+          target: LatLng(-8.893244, 13.185357),
+          zoom: 20
         ),
        onMapCreated: _onMapCreated,
        markers: _marcadore,
+       polygons: _polygnos,
+       polylines: _polyline,
         ),
       ) 
     );
