@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mapa_geolocalizacao">
-
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> 
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> 
    <application
         android:label="mapa_geolocalizacao"
         android:name="${applicationName}"
@@ -33,6 +34,5 @@
             android:value="2" />
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyDsTnhQabz6hO6OyHfzFuuSgYisu8c7W7c"/>
-
     </application>
 </manifest>

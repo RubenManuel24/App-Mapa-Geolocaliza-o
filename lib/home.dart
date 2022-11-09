@@ -11,9 +11,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Completer<GoogleMapController> _controller = Completer();
-
-Set<Marker> _marcadore = {};
+final Completer<GoogleMapController> _controller = Completer();
+CameraPosition _cameraPosition = const CameraPosition(
+          target: LatLng(-8.85866, 13.2234017),
+          zoom: 20
+    );
+final Set<Marker> _marcadore = {};
 Set<Polygon> _polygnos = {};
 Set<Polyline> _polyline = {};
 
@@ -26,12 +29,7 @@ _movimentarCamera() async {
  GoogleMapController googleMapController = await _controller.future;
  googleMapController.animateCamera(
     CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: LatLng(-8.822453, 13.234531),
-        zoom: 16,
-        tilt: 0,
-        bearing: 30 
-      ),
+      _cameraPosition
     )
   );
 }
@@ -165,42 +163,111 @@ Polygon polygon1 = Polygon(
 }
 
 //metodo para carregar a posicao atual de quem usa o App, e tambem tem as permições
-_carregarLocalizacaoAtual() async {
-  LocationPermission permission = await Geolocator.checkPermission();
+Future _recuperarLocalizacaoAtual() async {
+LocationPermission permission = await Geolocator.checkPermission();
 
   if(permission == LocationPermission.denied){
-    permission = await Geolocator.requestPermission();
-    if(permission == LocationPermission.denied){
-      return Future.error('Location permissions are denied');
+      permission = await Geolocator.requestPermission();
+       if(permission == LocationPermission.denied){
+         return Future.error('Location permissions are denied');
     }
   }
-
+ 
   if(permission == LocationPermission.deniedForever){
     return Future.error(
       'Location permissions are permanently denied, we cannot request permissions.');
   }
+  
   else{
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high );
+       //print("LocalizaÇão atual: " + position.toString());
 
-      Position position;
-      
-       position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best );
-
-       print("LocalizaÇão atual: " + position.toString());
-
-       return position;
+       Marker marcadorHotel = Marker(
+        markerId: MarkerId(
+          "Usuario"),
+        position: LatLng(position.latitude, position.longitude),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+        infoWindow: InfoWindow(
+          title: "Meu local"
+        ),
+        onTap: (){
+          print("Local Usuario");
+        }
+    );
+   
+       setState(() {
+        _marcadore.add(marcadorHotel);
+          _cameraPosition = CameraPosition(
+              target: LatLng(position.latitude, position.longitude),
+              zoom: 20
+           );
+         _movimentarCamera();
+       });
   }
 
 }
 
+//Metodo que irá monitorar a localização do usuario, com um Listener
+    _adicionarListenerLocalizacao() async {
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if(permission == LocationPermission.denied){
+          permission = await Geolocator.requestPermission();
+          if(permission == LocationPermission.denied){
+            return Future.error('Location permissions are denied');
+        }
+      }
+    
+      if(permission == LocationPermission.deniedForever){
+        return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+      }
+
+       else{
+          LocationSettings locationSettings = LocationSettings(
+              accuracy: LocationAccuracy.high,
+              distanceFilter: 8,
+              timeLimit: Duration(seconds: 3),
+            );
+
+          Geolocator.getPositionStream(locationSettings: locationSettings)
+             .listen((Position position) {
+
+          Marker marcadorHotel = Marker(
+              markerId: MarkerId(
+                "Marcador-Usuário"),
+                position: LatLng(position.latitude, position.longitude),
+                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+                infoWindow: InfoWindow(
+                  title: "Meu Local"
+                ),
+                onTap: (){
+                  print("Local Usuário");
+                }
+          );
+
+               setState(() {
+                  _cameraPosition = CameraPosition(
+                         target: LatLng(position.latitude, position.longitude),
+                         zoom: 20
+                   );
+                   _marcadore.add(marcadorHotel);
+                   _movimentarCamera();
+               });
+                
+              });
+          
+      }
+
+    }
 
 @override
 void initState() {
   super.initState();
 //_carregarMarcadores();
-_carregarLocalizacaoAtual();
-  
-  
+_adicionarListenerLocalizacao();
 }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,16 +283,14 @@ _carregarLocalizacaoAtual();
         child: GoogleMap(
         //mapType: MapType.normal, 
         //mapType: MapType.none , 
-         mapType: MapType.satellite , 
-        //mapType: MapType.hybrid , 
-        initialCameraPosition: CameraPosition(
-          target: LatLng(-8.85866, 13.2234017),
-          zoom: 70
-        ),
-       onMapCreated: _onMapCreated,
-       markers: _marcadore,
-       polygons: _polygnos,
-       polylines: _polyline,
+        //mapType: MapType.satellite , 
+        mapType: MapType.hybrid , 
+        initialCameraPosition: _cameraPosition,
+        onMapCreated: _onMapCreated,
+        markers: _marcadore,
+        //polygons: _polygnos,
+        //polylines: _polyline,
+        myLocationEnabled: true,
         ),
       ) 
     );
