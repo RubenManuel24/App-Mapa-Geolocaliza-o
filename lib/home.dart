@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -37,7 +38,7 @@ _movimentarCamera() async {
 //Metodo que irá carregar os marcadores no Set<Marker>
 // e este irá carregar no marker: para o Mapa, e também carrega os polygons Set<Polygn>
 _carregarMarcadores(){
-
+     
   /*
   Set<Marker> marcadoreLocal = {};
 
@@ -207,7 +208,7 @@ LocationPermission permission = await Geolocator.checkPermission();
 
 }
 
-//Metodo que irá monitorar a localização do usuario, com um Listener
+ //Metodo que irá monitorar a localização do usuario, com um Listener
     _adicionarListenerLocalizacao() async {
       LocationPermission permission = await Geolocator.checkPermission();
 
@@ -255,17 +256,138 @@ LocationPermission permission = await Geolocator.checkPermission();
                    _movimentarCamera();
                });
                 
-              });
-          
+              });  
       }
 
     }
+    
+    //Metodo para recuperar dados apartir do Endereço
+    _recuperarDadosEndereco() async {
+        
+       List<Location> listaEndereco = await locationFromAddress(
+        "Ucall, Belas"
+        );
+
+       print("Total: " +listaEndereco.length.toString());
+
+       if( listaEndereco != null && listaEndereco.isNotEmpty){
+          
+          Location firstLocation = listaEndereco.first;
+
+          List<Placemark> places = await placemarkFromCoordinates(
+            firstLocation.latitude, 
+            firstLocation.longitude
+          );
+
+           if(places != null && places.isNotEmpty){
+               
+               Placemark endereco = places[0];
+
+               String resultado;
+
+               resultado = "\n AdministrativeArea: "    + endereco.administrativeArea.toString();
+               resultado += "\n SubAdministrativeArea: " + endereco.subAdministrativeArea.toString();
+               resultado += "\n Locality: "              + endereco.locality.toString();
+               resultado += "\n SubLocality: "           + endereco.subLocality.toString();
+               resultado += "\n Thoroughfare: "          + endereco.thoroughfare.toString();
+               resultado += "\n SubThoroughfare: "       + endereco.subThoroughfare.toString();
+               resultado += "\n Street: "                + endereco.street.toString();
+               resultado += "\n Name: "                  + endereco.name.toString();
+               resultado += "\n Country: "               + endereco.country.toString();
+               resultado += "\n IsoCountryCode: "        + endereco.isoCountryCode.toString();
+               resultado += "\n PostalCode: " + endereco.postalCode.toString();
+
+               print("Resutado: "+resultado.toString());
+              
+           }
+
+           Marker marcadorHotel = Marker(
+             markerId: MarkerId(
+              "Endereço"),
+              position: LatLng(firstLocation.latitude, firstLocation.longitude),
+              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+              infoWindow: InfoWindow(
+                title: "Endereço"
+              ),
+              onTap: (){
+                print("Endereço");
+              }
+         );
+
+         setState(() {
+           _marcadore.add(marcadorHotel);
+           _cameraPosition = CameraPosition(
+              target: LatLng(firstLocation.latitude, firstLocation.longitude),
+              zoom: 20
+           );
+           _movimentarCamera();
+         });
+
+       }
+
+    }
+
+
+     //Metodo para recuperar dados apartir da Latitude e Longuitude
+    _recuperarDadosLatLong() async {
+
+          List<Placemark> places = await placemarkFromCoordinates(-8.81440, 13.23011);
+
+           if(places != null && places.isNotEmpty){
+               
+               Placemark endereco = places[0];
+
+               String resultado;
+
+               resultado = "\n AdministrativeArea: "    + endereco.administrativeArea.toString();
+               resultado += "\n SubAdministrativeArea: " + endereco.subAdministrativeArea.toString();
+               resultado += "\n Locality: "              + endereco.locality.toString();
+               resultado += "\n SubLocality: "           + endereco.subLocality.toString();
+               resultado += "\n Thoroughfare: "          + endereco.thoroughfare.toString();
+               resultado += "\n SubThoroughfare: "       + endereco.subThoroughfare.toString();
+               resultado += "\n Street: "                + endereco.street.toString();
+               resultado += "\n Name: "                  + endereco.name.toString();
+               resultado += "\n Country: "               + endereco.country.toString();
+               resultado += "\n IsoCountryCode: "        + endereco.isoCountryCode.toString();
+               resultado += "\n PostalCode: " + endereco.postalCode.toString();
+
+               print("Resutado: "+resultado.toString());
+              
+           }
+
+           Marker marcadorHotel = Marker(
+             markerId: MarkerId(
+              "Endereço"),
+              position: LatLng(-8.81440, 13.23011),
+              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+              infoWindow: InfoWindow(
+                title: "Endereço"
+              ),
+              onTap: (){
+                print("Endereço");
+              }
+         );
+
+         setState(() {
+           _marcadore.add(marcadorHotel);
+           _cameraPosition = CameraPosition(
+              target: LatLng(-8.81440, 13.23011),
+              zoom: 20
+           );
+           _movimentarCamera();
+         });
+
+     }
+
+    
 
 @override
 void initState() {
   super.initState();
 //_carregarMarcadores();
-_adicionarListenerLocalizacao();
+//_adicionarListenerLocalizacao();
+//_recuperarDadosEndereco();
+_recuperarDadosLatLong();
 }
 
   @override
